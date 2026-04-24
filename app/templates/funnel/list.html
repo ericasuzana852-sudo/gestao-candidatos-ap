@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Funil de Contratacao{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Funil de Contratacao</h1>
+  <a class="btn btn-primary" href="{{ url_for('funnel.new_funnel') }}">+ Nova linha</a>
+</div>
+
+<form class="filters" method="get">
+  <input type="date" name="start" value="{{ filters.get('start','') }}">
+  <input type="date" name="end" value="{{ filters.get('end','') }}">
+  <select name="store"><option value="">Loja...</option>
+    {% for s in stores %}<option value="{{ s }}" {% if filters.get('store')==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <input name="role" placeholder="Funcao" value="{{ filters.get('role','') }}">
+  <select name="interviewer"><option value="">Entrevistador...</option>
+    {% for i in interviewers %}<option value="{{ i }}" {% if filters.get('interviewer')==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+  </select>
+  <select name="screened_by"><option value="">Triagem...</option>
+    {% for i in screened_by_options %}<option value="{{ i }}" {% if filters.get('screened_by')==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+
+{% for row in rows %}
+<div class="funnel-block">
+  <h2>
+    {% if row.record.record_type == 'start' %}Linha Data de Inicio{% else %}Linha Data de D+1{% endif %}
+    - {{ row.record.reference_date.strftime('%d/%m/%Y') }}
+    {% if row.record.store %}({{ row.record.store }}){% endif %}
+    <a class="btn btn-ghost" href="{{ url_for('funnel.edit_funnel', rid=row.record.id) }}">editar</a>
+  </h2>
+  <table class="data funnel">
+    <thead><tr><th>Etapa</th><th>Quantidade</th><th>Perda</th><th>% Perda</th></tr></thead>
+    <tbody>
+    {% for step in row.calc %}
+      <tr>
+        <td>{{ step.label }}</td>
+        <td>{{ step.value if step.value is not none else '-' }}</td>
+        <td>{{ step.loss if step.loss is not none else '-' }}</td>
+        <td>{{ ('%.2f' % step.pct) ~ '%' if step.pct is not none else '-' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="empty">Nenhuma linha de funil cadastrada.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Usuarios</h1>
+  <a class="btn btn-primary" href="{{ url_for('admin.new_user') }}">+ Novo usuario</a>
+</div>
+<table class="data">
+  <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th><th></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    <tr>
+      <td>{{ u.name }}</td><td>{{ u.email }}</td><td>{{ u.role }}</td>
+      <td>{{ 'Sim' if u.active else 'Nao' }}</td>
+      <td><a class="btn btn-ghost" href="{{ url_for('admin.edit_user', uid=u.id) }}">editar</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

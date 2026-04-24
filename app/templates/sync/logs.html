@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Logs de Sincronizacao{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Logs de Sincronizacao</h1>
+  {% if current_user.is_admin %}
+    <form method="post" action="{{ url_for('sync.run_now') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-warning" type="submit">Sincronizar Converts agora</button>
+    </form>
+  {% endif %}
+</div>
+
+<table class="data">
+  <thead><tr>
+    <th>Inicio</th><th>Fim</th><th>Origem</th><th>Usuario</th>
+    <th>Encontrados</th><th>Novos</th><th>Duplicados</th><th>Status</th><th>Erros</th>
+  </tr></thead>
+  <tbody>
+  {% for l in logs %}
+    <tr>
+      <td>{{ l.started_at.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+      <td>{{ l.finished_at.strftime('%d/%m/%Y %H:%M:%S') if l.finished_at else '-' }}</td>
+      <td>{{ l.triggered_by }}</td>
+      <td>{{ l.user.name if l.user else '-' }}</td>
+      <td>{{ l.found }}</td><td>{{ l.inserted }}</td><td>{{ l.duplicates }}</td>
+      <td><span class="badge badge-{{ l.status }}">{{ l.status }}</span></td>
+      <td class="errors">{{ l.errors or '' }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9" class="empty">Nenhuma execucao registrada ainda.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

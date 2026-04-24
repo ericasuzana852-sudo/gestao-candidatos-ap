@@ -1,0 +1,6 @@
+Generic single-database configuration via Flask-Migrate.
+
+Use:
+  flask db init      # apenas se a pasta migrations nao existir (ja existe!)
+  flask db migrate -m "mensagem"
+  flask db upgrade

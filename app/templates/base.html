@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Gestao de Candidatos AP{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<nav class="topbar">
+  <div class="brand">Candidatos AP</div>
+  <ul>
+    <li><a href="{{ url_for('candidates.list_candidates') }}">Candidatos</a></li>
+    <li><a href="{{ url_for('funnel.view_funnel') }}">Funil</a></li>
+    <li><a href="{{ url_for('reports.view_reports') }}">Relatorios</a></li>
+    <li><a href="{{ url_for('sync.logs') }}">Sincronizacao</a></li>
+    {% if current_user.is_admin %}
+      <li><a href="{{ url_for('admin.list_users') }}">Usuarios</a></li>
+      <li><a href="{{ url_for('admin.stores') }}">Lojas</a></li>
+    {% endif %}
+  </ul>
+  <div class="user-area">
+    <span>{{ current_user.name }} ({{ current_user.role }})</span>
+    <a class="btn btn-ghost" href="{{ url_for('auth.logout') }}">Sair</a>
+  </div>
+</nav>
+{% endif %}
+
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

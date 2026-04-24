@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Login - Candidatos AP{% endblock %}
+{% block content %}
+<div class="login-card">
+  <h1>Entrar</h1>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>E-mail
+      <input type="email" name="email" required autofocus>
+    </label>
+    <label>Senha
+      <input type="password" name="password" required>
+    </label>
+    <label class="inline">
+      <input type="checkbox" name="remember"> Manter conectado
+    </label>
+    <button type="submit" class="btn btn-primary">Entrar</button>
+  </form>
+</div>
+{% endblock %}

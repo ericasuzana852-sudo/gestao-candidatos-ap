@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Candidatos AP{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Controle de Candidatos AP</h1>
+  <div class="actions">
+    <a class="btn btn-primary" href="{{ url_for('candidates.new_candidate') }}">+ Novo candidato</a>
+    <a class="btn" href="{{ url_for('candidates.export_excel', **request.args) }}">Exportar Excel</a>
+    {% if current_user.is_admin %}
+      <form method="post" action="{{ url_for('sync.run_now') }}" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-warning" type="submit">Sincronizar Converts agora</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<form class="filters" method="get">
+  <input type="date" name="start" value="{{ filters.get('start','') }}" placeholder="De">
+  <input type="date" name="end" value="{{ filters.get('end','') }}" placeholder="Ate">
+  <select name="store"><option value="">Loja...</option>
+    {% for s in stores %}<option value="{{ s }}" {% if filters.get('store')==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="role"><option value="">Funcao...</option>
+    {% for r in roles %}<option value="{{ r }}" {% if filters.get('role')==r %}selected{% endif %}>{{ r }}</option>{% endfor %}
+  </select>
+  <select name="stage"><option value="">Etapa...</option>
+    {% for s in stages %}<option value="{{ s }}" {% if filters.get('stage')==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="interviewer"><option value="">Entrevistador...</option>
+    {% for i in interviewers %}<option value="{{ i }}" {% if filters.get('interviewer')==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+  </select>
+  <select name="screened_by"><option value="">Triagem...</option>
+    {% for i in screened_by_options %}<option value="{{ i }}" {% if filters.get('screened_by')==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+  </select>
+  <input type="text" name="q" placeholder="Buscar por nome" value="{{ filters.get('q','') }}">
+  <button class="btn" type="submit">Filtrar</button>
+  <a class="btn btn-ghost" href="{{ url_for('candidates.list_candidates') }}">Limpar</a>
+</form>
+
+<div class="table-wrap">
+<table class="data">
+  <thead><tr>
+    <th>A Data Entrevista</th><th>D Nome</th><th>E Entrevistador</th><th>F Triagem</th>
+    <th>G Loja</th><th>H Funcao</th><th>I Etapa</th><th>Z Media</th><th></th>
+  </tr></thead>
+  <tbody>
+  {% for c in candidates %}
+    <tr>
+      <td>{{ c.interview_date.strftime('%d/%m/%Y') if c.interview_date else '' }}</td>
+      <td>{{ c.name }}</td>
+      <td>{{ c.interviewer or '' }}</td>
+      <td>{{ c.screened_by or '' }}</td>
+      <td>{{ c.store or '' }}</td>
+      <td>{{ c.role_position or '' }}</td>
+      <td>{{ c.stage or '' }}</td>
+      <td>{{ c.average_score if c.average_score is not none else '-' }}</td>
+      <td>
+        <a class="btn btn-ghost" href="{{ url_for('candidates.edit_candidate', cid=c.id) }}">Editar</a>
+        {% if current_user.is_admin %}
+          <form method="post" action="{{ url_for('candidates.delete_candidate', cid=c.id) }}" style="display:inline" onsubmit="return confirm('Excluir candidato?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-danger" type="submit">Excluir</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9" class="empty">Nenhum candidato encontrado.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

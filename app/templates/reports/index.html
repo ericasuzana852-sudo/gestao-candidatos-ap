@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Relatorios{% endblock %}
+{% block content %}
+<h1>Relatorios</h1>
+
+<form class="filters" method="get">
+  <input type="date" name="start" value="{{ filters.get('start','') }}">
+  <input type="date" name="end" value="{{ filters.get('end','') }}">
+  <select name="store"><option value="">Loja...</option>
+    {% for s in stores %}<option value="{{ s }}" {% if filters.get('store')==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <input name="role" placeholder="Funcao" value="{{ filters.get('role','') }}">
+  <select name="interviewer"><option value="">Entrevistador...</option>
+    {% for i in interviewers %}<option value="{{ i }}" {% if filters.get('interviewer')==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+
+<div class="cards">
+  <div class="card"><h3>Total Aprovados</h3><p class="big">{{ total }}</p></div>
+  <div class="card"><h3>Desistencias</h3><p class="big">{{ desistencias }}</p></div>
+  <div class="card"><h3>Cortes / Processo</h3><p class="big">{{ cortes }}</p></div>
+  <div class="card"><h3>Admissoes</h3><p class="big">{{ admissoes }}</p></div>
+  <div class="card"><h3>Prorrogacoes</h3><p class="big">{{ prorrogacoes }}</p></div>
+  <div class="card"><h3>Efetivacoes</h3><p class="big">{{ efetivacoes }}</p></div>
+  <div class="card"><h3>% Perda</h3><p class="big">{{ pct_perda }}%</p></div>
+</div>
+
+<h2>Perdas por etapa</h2>
+<table class="data"><thead><tr><th>Etapa</th><th>Quantidade</th></tr></thead><tbody>
+{% for k, v in perdas_etapa.items() %}<tr><td>{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}
+</tbody></table>
+
+<h2>Perdas por loja</h2>
+<table class="data"><thead><tr><th>Loja</th><th>Quantidade</th></tr></thead><tbody>
+{% for k, v in perdas_loja.items() %}<tr><td>{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}
+</tbody></table>
+
+<h2>Perdas por funcao</h2>
+<table class="data"><thead><tr><th>Funcao</th><th>Quantidade</th></tr></thead><tbody>
+{% for k, v in perdas_funcao.items() %}<tr><td>{{ k }}</td><td>{{ v }}</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Lojas{% endblock %}
+{% block content %}
+<h1>Lojas</h1>
+<form method="post" class="inline-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input name="name" placeholder="Nome da loja" required>
+  <button class="btn btn-primary" type="submit">Adicionar</button>
+</form>
+<p class="hint">A lista de lojas tambem e atualizada automaticamente pelo Converts (RELATORIOS).</p>
+<table class="data">
+  <thead><tr><th>Nome</th><th>Converts ID</th><th>Ativa</th><th></th></tr></thead>
+  <tbody>
+  {% for s in stores %}
+    <tr>
+      <td>{{ s.name }}</td><td>{{ s.converts_id or '-' }}</td>
+      <td>{{ 'Sim' if s.active else 'Nao' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.toggle_store', sid=s.id) }}" style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-ghost" type="submit">{{ 'Desativar' if s.active else 'Ativar' }}</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

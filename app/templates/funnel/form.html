@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Funil{% endblock %}
+{% block content %}
+<h1>{% if record %}Editar{% else %}Nova{% endif %} linha de funil</h1>
+<form method="post" class="grid-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Tipo
+    <select name="record_type" id="record_type">
+      <option value="start" {% if record and record.record_type=='start' %}selected{% endif %}>Linha Data de Inicio</option>
+      <option value="d1" {% if record and record.record_type=='d1' %}selected{% endif %}>Linha Data de D+1</option>
+    </select>
+  </label>
+  <label>Data de referencia
+    <input type="date" id="reference_date" name="reference_date" required value="{{ record.reference_date.isoformat() if record else '' }}">
+  </label>
+  <label>Loja
+    <select name="store" id="store"><option value="">--</option>
+      {% for s in stores %}<option value="{{ s }}" {% if record and record.store==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Funcao
+    <input name="role_position" id="role_position" value="{{ record.role_position if record else '' }}">
+  </label>
+  <label>Entrevistador
+    <select name="interviewer" id="interviewer"><option value="">--</option>
+      {% for i in interviewers %}<option value="{{ i }}" {% if record and record.interviewer==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Triagem feita por
+    <select name="screened_by" id="screened_by"><option value="">--</option>
+      {% for i in screened_by_options %}<option value="{{ i }}" {% if record and record.screened_by==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+    </select>
+  </label>
+
+  <p class="col-span-2"><strong>Total de aprovados (automatico):</strong> <span id="total_aprovados">-</span></p>
+
+  <label>Proposta da Vaga
+    <input type="number" min="0" name="proposta_vaga" value="{{ record.proposta_vaga if record else '' }}">
+  </label>
+  <label>Ap. pessoal/Cultura + formulario
+    <input type="number" min="0" name="apresentacao_cultura" value="{{ record.apresentacao_cultura if record else '' }}">
+  </label>
+  <label>Treina. Funcional + Premiacao
+    <input type="number" min="0" name="treina_funcional" value="{{ record.treina_funcional if record else '' }}">
+  </label>
+  <label>Admissao
+    <input type="number" min="0" name="admissao" value="{{ record.admissao if record else '' }}">
+  </label>
+  <label>Prorrogacao
+    <input type="number" min="0" name="prorrogacao" value="{{ record.prorrogacao if record else '' }}">
+  </label>
+  <label>Efetivacao
+    <input type="number" min="0" name="efetivacao" value="{{ record.efetivacao if record else '' }}">
+  </label>
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Salvar</button>
+    <a class="btn btn-ghost" href="{{ url_for('funnel.view_funnel') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+async function refreshTotal() {
+  const date = document.getElementById('reference_date').value;
+  const kind = document.getElementById('record_type').value;
+  if (!date) { document.getElementById('total_aprovados').textContent = '-'; return; }
+  const params = new URLSearchParams({ date, kind,
+    store: document.getElementById('store').value,
+    role: document.getElementById('role_position').value,
+    interviewer: document.getElementById('interviewer').value,
+    screened_by: document.getElementById('screened_by').value,
+  });
+  const r = await fetch('{{ url_for("funnel.api_aprovados") }}?' + params);
+  const d = await r.json();
+  document.getElementById('total_aprovados').textContent = d.total;
+}
+['reference_date','record_type','store','role_position','interviewer','screened_by'].forEach(id => {
+  document.getElementById(id).addEventListener('change', refreshTotal);
+});
+refreshTotal();
+</script>
+{% endblock %}

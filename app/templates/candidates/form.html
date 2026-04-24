@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}{% if candidate %}Editar{% else %}Novo{% endif %} Candidato{% endblock %}
+{% block content %}
+<h1>{% if candidate %}Editar{% else %}Novo{% endif %} candidato</h1>
+
+<form method="post" class="grid-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+<fieldset>
+  <legend>Dados principais</legend>
+  <label>D - Nome do candidato
+    <input name="name" required value="{{ candidate.name if candidate else '' }}">
+  </label>
+  <label>A - Data de Entrevista
+    <input type="date" name="interview_date" value="{{ candidate.interview_date.isoformat() if candidate and candidate.interview_date else '' }}">
+  </label>
+  <label>B - Data Inicio Loja
+    <input type="date" name="start_date" value="{{ candidate.start_date.isoformat() if candidate and candidate.start_date else '' }}">
+  </label>
+  <label>C - Data da Admissao
+    <input type="date" name="admission_date" value="{{ candidate.admission_date.isoformat() if candidate and candidate.admission_date else '' }}">
+  </label>
+  <label>E - Entrevistador
+    <select name="interviewer">
+      <option value="">--</option>
+      {% for i in interviewers %}<option value="{{ i }}" {% if candidate and candidate.interviewer==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>F - Triagem feita por
+    <select name="screened_by">
+      <option value="">--</option>
+      {% for i in screened_by_options %}<option value="{{ i }}" {% if candidate and candidate.screened_by==i %}selected{% endif %}>{{ i }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>G - Loja
+    <select name="store">
+      <option value="">--</option>
+      {% for s in stores %}<option value="{{ s }}" {% if candidate and candidate.store==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>H - Funcao
+    <input name="role_position" value="{{ candidate.role_position if candidate else '' }}">
+  </label>
+  <label>I - Etapa
+    <select name="stage">
+      <option value="">--</option>
+      {% for s in stages %}<option value="{{ s }}" {% if candidate and candidate.stage==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>J - Prorrogacao
+    <select name="extension"><option value="">--</option>{% for v in yes_no %}<option value="{{ v }}" {% if candidate and candidate.extension==v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  </label>
+  <label>K - Efetivacao
+    <select name="effective"><option value="">--</option>{% for v in yes_no %}<option value="{{ v }}" {% if candidate and candidate.effective==v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  </label>
+  <label>L - Referencia
+    <select name="reference"><option value="">--</option>{% for v in yes_no %}<option value="{{ v }}" {% if candidate and candidate.reference==v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  </label>
+  <label>M - Arquivado Sults
+    <select name="archived_sults"><option value="">--</option>{% for v in yes_no %}<option value="{{ v }}" {% if candidate and candidate.archived_sults==v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+  </label>
+  <label class="col-span-2">N - Observacoes Gerais
+    <textarea name="notes" rows="3">{{ candidate.notes if candidate else '' }}</textarea>
+  </label>
+</fieldset>
+
+<fieldset>
+  <legend>O - Pontos positivos</legend>
+  <div class="checkbox-grid">
+  {% for p in positive_points %}
+    <label class="chk"><input type="checkbox" name="positive_points" value="{{ p }}" {% if candidate and p in candidate.positive_points_list %}checked{% endif %}> {{ p }}</label>
+  {% endfor %}
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>P - Pontos negativos</legend>
+  <div class="checkbox-grid">
+  {% for p in negative_points %}
+    <label class="chk"><input type="checkbox" name="negative_points" value="{{ p }}" {% if candidate and p in candidate.negative_points_list %}checked{% endif %}> {{ p }}</label>
+  {% endfor %}
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>Notas (Q a Y)</legend>
+  {% set fields = [
+    ('score_negotiation','Q - Negociacao/Persuasao'),
+    ('score_history','R - Historico'),
+    ('score_emotional','S - Emocional'),
+    ('score_posture','T - Postura ENTREVISTA'),
+    ('score_alignment','U - Alinhamento Valores'),
+    ('score_analytical','V - Capacidade analitica'),
+    ('score_friendly','W - Simpatia/Sociavel'),
+    ('score_trainability','X - Treinabilidade'),
+    ('score_political','Y - Politico'),
+  ] %}
+  {% for f, label in fields %}
+    <label>{{ label }}
+      <select name="{{ f }}">
+        <option value="Sem nota">Sem nota</option>
+        {% for n in [1,2,3,4,5] %}<option value="{{ n }}" {% if candidate and candidate[f]==n %}selected{% endif %}>{{ n }}</option>{% endfor %}
+      </select>
+    </label>
+  {% endfor %}
+  {% if candidate %}
+    <p><strong>Z - Media:</strong> {{ candidate.average_score if candidate.average_score is not none else 'sem notas' }}</p>
+  {% endif %}
+</fieldset>
+
+<div class="form-actions">
+  <button class="btn btn-primary" type="submit">Salvar</button>
+  <a class="btn btn-ghost" href="{{ url_for('candidates.list_candidates') }}">Cancelar</a>
+</div>
+</form>
+{% endblock %}

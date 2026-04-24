@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Usuario{% endblock %}
+{% block content %}
+<h1>{% if user %}Editar{% else %}Novo{% endif %} usuario</h1>
+<form method="post" class="grid-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Nome <input name="name" required value="{{ user.name if user else '' }}"></label>
+  <label>E-mail <input type="email" name="email" required value="{{ user.email if user else '' }}"></label>
+  <label>Senha {% if user %}(deixe em branco para manter){% endif %}
+    <input type="password" name="password" {% if not user %}required{% endif %}>
+  </label>
+  <label>Perfil
+    <select name="role">
+      <option value="operacional" {% if user and user.role=='operacional' %}selected{% endif %}>Operacional</option>
+      <option value="admin" {% if user and user.role=='admin' %}selected{% endif %}>Administrador</option>
+    </select>
+  </label>
+  <label class="inline"><input type="checkbox" name="active" {% if not user or user.active %}checked{% endif %}> Ativo</label>
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Salvar</button>
+    <a class="btn btn-ghost" href="{{ url_for('admin.list_users') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
